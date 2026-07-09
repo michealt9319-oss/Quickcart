@@ -1,0 +1,42 @@
+name: Flutter CI Debug
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter SDK
+        run: |
+          git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          export PATH="$HOME/flutter/bin:$PATH"
+          flutter --version
+          dart --version
+          flutter doctor -v || true
+          flutter precache
+        shell: bash
+
+      - name: Debug Flutter install
+        run: |
+          echo "PATH=$PATH"
+          echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
+          which flutter || true
+          flutter --version || true
+          dart --version || true
+          flutter doctor -v || true
+        shell: bash
+
+      - name: Install dependencies
+        working-directory: quickcart-app
+        run: |
+          flutter pub get
+          flutter pub outdated || true
+
+      - name: Run tests
+        working-directory: quickcart-app
+        run: flutter test --no-pub
