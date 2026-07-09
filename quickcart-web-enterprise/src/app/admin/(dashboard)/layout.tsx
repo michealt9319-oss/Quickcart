@@ -84,11 +84,14 @@ function LoginGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const links = [
+    const links = [
     { href: "/admin/orders", label: "Orders", roles: ["owner", "manager", "support"] },
     { href: "/admin/reports", label: "Reports", roles: ["owner", "manager"] },
     { href: "/admin/products", label: "Products", roles: ["owner", "manager"] },
     { href: "/admin/supermarkets", label: "Supermarkets", roles: ["owner", "manager"] },
+      { href: "/admin/delivery-zones", label: "Delivery zones", roles: ["owner", "manager", "support"] },
+      { href: "/admin/api-keys", label: "API keys", roles: ["owner"] },
+      { href: "/admin/data-requests", label: "Data requests", roles: ["owner", "manager"] },
     { href: "/admin/team", label: "Team", roles: ["owner"] },
     { href: "/admin/settings", label: "Settings", roles: ["owner"] },
     { href: "/admin/audit-log", label: "Audit log", roles: ["owner"] },

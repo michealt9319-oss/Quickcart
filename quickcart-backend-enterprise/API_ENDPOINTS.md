@@ -1,0 +1,53 @@
+# QuickCart Backend API Endpoints
+
+| Method | Path | Description | Source File |
+|---|---|---|---|
+| GET | /health | Health check (DB ping) | quickcart-backend-enterprise/src/index.ts |
+| GET | /metrics | Prometheus-style metrics text | quickcart-backend-enterprise/src/index.ts |
+| GET | /docs | Swagger UI (if openapi.yaml present) | quickcart-backend-enterprise/src/index.ts |
+| POST | /api/v1/auth/login | Admin login (access + refresh tokens / MFA flow) | quickcart-backend-enterprise/src/routes/auth.ts |
+| POST | /api/v1/auth/refresh | Rotate refresh token / issue access token | quickcart-backend-enterprise/src/routes/auth.ts |
+| POST | /api/v1/auth/logout | Revoke refresh token | quickcart-backend-enterprise/src/routes/auth.ts |
+| POST | /api/v1/auth/forgot-password | Request password reset email | quickcart-backend-enterprise/src/routes/auth.ts |
+| POST | /api/v1/auth/reset-password | Complete password reset | quickcart-backend-enterprise/src/routes/auth.ts |
+| POST | /api/v1/mfa/setup | Generate MFA secret and QR | quickcart-backend-enterprise/src/routes/mfa.ts |
+| POST | /api/v1/mfa/confirm | Confirm & enable MFA | quickcart-backend-enterprise/src/routes/mfa.ts |
+| POST | /api/v1/mfa/disable | Disable MFA | quickcart-backend-enterprise/src/routes/mfa.ts |
+| POST | /api/v1/organizations/bootstrap | One-time bootstrap org + owner | quickcart-backend-enterprise/src/routes/organizations.ts |
+| POST | /api/v1/organizations/signup | Public org signup (creates owner) | quickcart-backend-enterprise/src/routes/organizations.ts |
+| POST | /api/v1/organizations/verify-email | Verify owner email token | quickcart-backend-enterprise/src/routes/organizations.ts |
+| POST | /api/v1/organizations/admin-users | Invite admin (owner-only) | quickcart-backend-enterprise/src/routes/organizations.ts |
+| GET | /api/v1/organizations/admin-users | List admin users (owner-only) | quickcart-backend-enterprise/src/routes/organizations.ts |
+| PUT | /api/v1/organizations/settings | Update org settings (owner-only) | quickcart-backend-enterprise/src/routes/organizations.ts |
+| GET | /api/v1/organizations/audit-logs | Paginated audit logs (owner-only) | quickcart-backend-enterprise/src/routes/organizations.ts |
+| GET | /api/v1/products | Public product browse (tenant header) | quickcart-backend-enterprise/src/routes/products.ts |
+| GET | /api/v1/products/:id | Product detail | quickcart-backend-enterprise/src/routes/products.ts |
+| POST | /api/v1/products | Create product (owner/manager) | quickcart-backend-enterprise/src/routes/products.ts |
+| PUT | /api/v1/products/:id | Update product (owner/manager) | quickcart-backend-enterprise/src/routes/products.ts |
+| DELETE | /api/v1/products/:id | Soft-delete product (owner/manager) | quickcart-backend-enterprise/src/routes/products.ts |
+| GET | /api/v1/supermarkets | List supermarkets (admin roles) | quickcart-backend-enterprise/src/routes/supermarkets.ts |
+| POST | /api/v1/supermarkets | Create supermarket (owner/manager) | quickcart-backend-enterprise/src/routes/supermarkets.ts |
+| PUT | /api/v1/supermarkets/:id | Update supermarket (owner/manager) | quickcart-backend-enterprise/src/routes/supermarkets.ts |
+| DELETE | /api/v1/supermarkets/:id | Soft-delete supermarket (owner/manager) | quickcart-backend-enterprise/src/routes/supermarkets.ts |
+| POST | /api/v1/orders | Create order (public, tenant header) | quickcart-backend-enterprise/src/routes/orders.ts |
+| GET | /api/v1/orders/history | Customer order history (phone query) | quickcart-backend-enterprise/src/routes/orders.ts |
+| GET | /api/v1/orders/lookup | Lookup order by phone + orderNumber | quickcart-backend-enterprise/src/routes/orders.ts |
+| GET | /api/v1/orders/:id | Order detail | quickcart-backend-enterprise/src/routes/orders.ts |
+| POST | /api/v1/orders/:id/cancel | Customer-initiated cancellation (phone) | quickcart-backend-enterprise/src/routes/orders.ts |
+| POST | /api/v1/payments/initialize | Initialize payment (Paystack/Flutterwave) | quickcart-backend-enterprise/src/routes/payments.ts |
+| POST | /api/v1/payments/webhook | Paystack webhook (raw body required) | quickcart-backend-enterprise/src/routes/payments.ts |
+| POST | /api/v1/payments/webhook/flutterwave | Flutterwave webhook (raw body required) | quickcart-backend-enterprise/src/routes/payments.ts |
+| GET | /api/v1/admin/orders | Admin list orders (owner/manager/support) | quickcart-backend-enterprise/src/routes/admin.ts |
+| PUT | /api/v1/admin/orders/:id/status | Change order status (owner/manager/support) | quickcart-backend-enterprise/src/routes/admin.ts |
+| POST | /api/v1/admin/orders/:id/refund | Refund order (owner/manager) | quickcart-backend-enterprise/src/routes/admin.ts |
+| GET | /api/v1/admin/reports/summary | Financial summary (owner/manager) | quickcart-backend-enterprise/src/routes/reports.ts |
+| POST | /api/v1/devices/register | Register device push token (public, tenant header) | quickcart-backend-enterprise/src/routes/devices.ts |
+| POST | /api/v1/uploads/presign | Admin presign S3 upload URL (owner/manager) | quickcart-backend-enterprise/src/routes/uploads.ts |
+| POST | /api/v1/api-keys | Create API key (owner-only) | quickcart-backend-enterprise/src/routes/apiKeys.ts |
+| GET | /api/v1/api-keys | List API keys (owner-only) | quickcart-backend-enterprise/src/routes/apiKeys.ts |
+| DELETE | /api/v1/api-keys/:id | Revoke API key (owner-only) | quickcart-backend-enterprise/src/routes/apiKeys.ts |
+| GET | /api/v1/data-requests/export | Export customer data by phone (admin) | quickcart-backend-enterprise/src/routes/dataRequests.ts |
+| POST | /api/v1/data-requests/delete | Anonymize customer data (owner-only) | quickcart-backend-enterprise/src/routes/dataRequests.ts |
+| POST | /api/v1/delivery-zones | Create delivery zone (owner/manager) | quickcart-backend-enterprise/src/routes/deliveryZones.ts |
+| GET | /api/v1/delivery-zones | List delivery zones (admin roles) | quickcart-backend-enterprise/src/routes/deliveryZones.ts |
+| POST | /api/v1/delivery-zones/check | Check deliverability for lat/lng (public, tenant header) | quickcart-backend-enterprise/src/routes/deliveryZones.ts |
