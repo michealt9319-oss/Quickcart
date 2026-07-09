@@ -65,6 +65,7 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+          cache-dependency-path: quickcart-backend-enterprise/package-lock.json
 
       - name: Install dependencies
         working-directory: quickcart-backend-enterprise
@@ -90,6 +91,7 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+          cache-dependency-path: quickcart-web-enterprise/package-lock.json
 
       - name: Install dependencies
         working-directory: quickcart-web-enterprise
