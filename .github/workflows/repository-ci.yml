@@ -1,0 +1,102 @@
+name: Repository CI
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - '.github/workflows/**'
+      - 'quickcart-app/**'
+      - 'quickcart-backend-enterprise/**'
+      - 'quickcart-web-enterprise/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'quickcart-app/**'
+      - 'quickcart-backend-enterprise/**'
+      - 'quickcart-web-enterprise/**'
+
+jobs:
+  flutter:
+    name: Flutter tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter SDK
+        run: |
+          git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          export PATH="$HOME/flutter/bin:$PATH"
+          flutter --version
+          dart --version
+          flutter doctor -v || true
+          flutter precache
+        shell: bash
+
+      - name: Cache Pub packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.flutter/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Install dependencies
+        working-directory: quickcart-app
+        run: flutter pub get
+
+      - name: Run tests
+        working-directory: quickcart-app
+        run: flutter test --no-pub
+
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: quickcart-backend-enterprise/package-lock.json
+
+      - name: Install dependencies
+        working-directory: quickcart-backend-enterprise
+        run: npm ci
+
+      - name: Build backend
+        working-directory: quickcart-backend-enterprise
+        run: npm run build
+
+      - name: Run backend tests
+        working-directory: quickcart-backend-enterprise
+        run: npm test
+
+  web:
+    name: Web tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: quickcart-web-enterprise/package-lock.json
+
+      - name: Install dependencies
+        working-directory: quickcart-web-enterprise
+        run: npm ci
+
+      - name: Run web tests
+        working-directory: quickcart-web-enterprise
+        run: npm test

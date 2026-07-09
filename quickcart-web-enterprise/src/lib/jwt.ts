@@ -5,7 +5,7 @@
 // could edit this decoded value in devtools and it would change nothing
 // except which links they see, since the actual authorization check always
 // happens server-side against the real token.
-export function decodeJwtPayload(token: string): { adminUserId: string; organizationId: string; role: string } | null {
+export function decodeJwtPayload(token: string): Record<string, any> | null {
   try {
     const [, payload] = token.split(".");
     const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));

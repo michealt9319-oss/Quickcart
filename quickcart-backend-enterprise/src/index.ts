@@ -33,8 +33,28 @@ export const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map((o) => o.trim());
-app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : true }));
+const allowedOrigins = [
+  ...(process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean),
+  ...(process.env.WEB_APP_URL ? [process.env.WEB_APP_URL.trim()] : []),
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins.length ? allowedOrigins : true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Organization-Slug",
+      "X-Api-Key",
+      "X-Requested-With",
+    ],
+    optionsSuccessStatus: 204,
+  }),
+);
 
 // Structured request logging with a request ID on every log line — the
 // baseline for being able to trace one customer's request through logs

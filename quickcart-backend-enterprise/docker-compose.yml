@@ -32,8 +32,8 @@ services:
       PORT: 4000
       JWT_SECRET: dev-only-secret-change-in-production
       BOOTSTRAP_SECRET: dev-only-bootstrap-secret
-      ALLOWED_ORIGINS: http://localhost:3000
-      WEB_APP_URL: http://localhost:3000
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+      WEB_APP_URL: http://localhost:3001
       # Paystack/WhatsApp/FCM/S3/SMTP keys intentionally left unset for
       # local dev — those integrations degrade gracefully (see each lib's
       # comments) rather than crashing the app when not configured.

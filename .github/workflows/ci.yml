@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [ ci/flutter-tests-automated, main ]
+  pull_request:
+    branches: [ ci/flutter-tests-automated, main ]
+
+jobs:
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache backend npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ matrix.node-version }}-${{ hashFiles('quickcart-backend-enterprise/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-${{ matrix.node-version }}-
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies (backend)
+        working-directory: quickcart-backend-enterprise
+        run: npm ci
+      - name: Run backend tests
+        working-directory: quickcart-backend-enterprise
+        run: npm test --silent
+      - name: Build backend
+        working-directory: quickcart-backend-enterprise
+        run: npm run build --silent
+
+  web:
+    name: Web CI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache web npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-web-node-${{ matrix.node-version }}-${{ hashFiles('quickcart-web-enterprise/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-web-node-${{ matrix.node-version }}-
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies (web)
+        working-directory: quickcart-web-enterprise
+        run: npm ci
+      - name: Run web tests
+        working-directory: quickcart-web-enterprise
+        run: npm test --silent
+      - name: Build web
+        working-directory: quickcart-web-enterprise
+        run: npm run build --silent
+
+  flutter:
+    name: Flutter CI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - channel: stable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl unzip xz-utils clang
+      - name: Clone Flutter (stable)
+        run: |
+          git clone --branch stable https://github.com/flutter/flutter.git --depth 1 $HOME/flutter
+      - name: Add Flutter to PATH
+        run: echo "$HOME/flutter/bin" >> $GITHUB_PATH
+      - name: Verify Flutter
+        run: flutter --version
+      - name: Cache Flutter pub
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-pub-${{ hashFiles('quickcart-app/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-pub-
+      - name: Enable Flutter web
+        run: flutter config --enable-web
+      - name: Install Flutter dependencies
+        working-directory: quickcart-app
+        run: flutter pub get
+      - name: Run Flutter tests (unit)
+        working-directory: quickcart-app
+        run: flutter test --machine
+      - name: Build Flutter web (optional)
+        working-directory: quickcart-app
+        run: flutter build web --release
