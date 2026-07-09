@@ -10,12 +10,22 @@ jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
     steps:
       - uses: actions/checkout@v4
+      - name: Cache backend npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ matrix.node-version }}-${{ hashFiles('quickcart-backend-enterprise/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-${{ matrix.node-version }}-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
       - name: Install dependencies (backend)
         working-directory: quickcart-backend-enterprise
         run: npm ci
@@ -29,12 +39,22 @@ jobs:
   web:
     name: Web CI
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
     steps:
       - uses: actions/checkout@v4
+      - name: Cache web npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-web-node-${{ matrix.node-version }}-${{ hashFiles('quickcart-web-enterprise/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-web-node-${{ matrix.node-version }}-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
       - name: Install dependencies (web)
         working-directory: quickcart-web-enterprise
         run: npm ci
@@ -58,6 +78,13 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: stable
+      - name: Cache Flutter pub
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-pub-${{ hashFiles('quickcart-app/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-pub-
       - name: Enable Flutter web
         run: flutter config --enable-web
       - name: Install Flutter dependencies
