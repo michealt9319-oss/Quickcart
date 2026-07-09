@@ -30,6 +30,7 @@ void main() {
     expect(find.textContaining('7,500'), findsOneWidget);
 
     await tester.tap(find.byType(InkWell));
+    await tester.pumpAndSettle();
     expect(tapped, true);
   });
 }
