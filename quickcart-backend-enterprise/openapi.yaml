@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: QuickCart Backend — Enterprise
+  version: "1.0"
+  description: >
+    Multi-tenant API for QuickCart. Public endpoints (products, orders, payments, devices)
+    require an X-Organization-Slug header. Admin endpoints require a Bearer token from
+    /auth/login and are further restricted by role (owner / manager / support).
+    This spec covers the shape of every endpoint; it is not exhaustively validated against
+    the live server — treat it as documentation, not a contract test.
+servers:
+  - url: http://localhost:4000/api/v1
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    OrgSlugHeader:
+      name: X-Organization-Slug
+      in: header
+      required: true
+      schema:
+        type: string
+paths:
+  /auth/login:
+    post:
+      summary: Log in and receive an access + refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [organizationSlug, email, password]
+              properties:
+                organizationSlug: { type: string }
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200": { description: OK }
+        "401": { description: Incorrect email or password }
+  /auth/refresh:
+    post:
+      summary: Exchange a refresh token for a new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties: { refreshToken: { type: string } }
+      responses:
+        "200": { description: OK }
+        "401": { description: Invalid or expired refresh token }
+  /auth/logout:
+    post:
+      summary: Revoke a refresh token
+      security: []
+  /auth/forgot-password:
+    post:
+      summary: Request a password reset email
+      security: []
+  /auth/reset-password:
+    post:
+      summary: Reset password using a token from the forgot-password email
+      security: []
+  /organizations/signup:
+    post:
+      summary: Self-serve create a new organization + owner account
+      security: []
+  /organizations/verify-email:
+    post:
+      summary: Verify an admin user's email using the token from signup
+      security: []
+  /organizations/bootstrap:
+    post:
+      summary: One-time, BOOTSTRAP_SECRET-guarded organization + owner creation
+      security: []
+  /organizations/admin-users:
+    get:
+      summary: List admin users (owner only, paginated)
+    post:
+      summary: Invite a manager/support admin user (owner only)
+  /organizations/settings:
+    put:
+      summary: Update organization name, fee overrides, currency (owner only)
+  /organizations/audit-logs:
+    get:
+      summary: Paginated audit trail (owner only)
+  /products:
+    get:
+      summary: List products for the tenant (public, tenant header required)
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/OrgSlugHeader"
+    post:
+      summary: Create a product (owner/manager)
+  /products/{id}:
+    get:
+      summary: Get a single product (public)
+      security: []
+    put:
+      summary: Update a product (owner/manager)
+    delete:
+      summary: Soft-delete a product (owner/manager)
+  /supermarkets:
+    get:
+      summary: List supermarkets for the tenant (owner/manager/support)
+    post:
+      summary: Create a supermarket (owner/manager)
+  /supermarkets/{id}:
+    put:
+      summary: Update a supermarket (owner/manager)
+    delete:
+      summary: Soft-delete a supermarket (owner/manager)
+  /orders:
+    post:
+      summary: Create an order (public, tenant header required)
+      security: []
+  /orders/history:
+    get:
+      summary: Order history for a phone number (public)
+      security: []
+  /orders/lookup:
+    get:
+      summary: Look up a single order by phone + order number (public)
+      security: []
+  /orders/{id}:
+    get:
+      summary: Get order status summary (public)
+      security: []
+  /payments/initialize:
+    post:
+      summary: Start a Paystack transaction for an order (public)
+      security: []
+  /payments/webhook:
+    post:
+      summary: Paystack webhook (called by Paystack, not by clients)
+      security: []
+  /admin/orders:
+    get:
+      summary: List orders for the tenant (owner/manager/support, paginated)
+  /admin/orders/{id}/status:
+    put:
+      summary: Update an order's status (owner/manager/support)
+  /admin/orders/{id}/refund:
+    post:
+      summary: Refund an order via Paystack (owner/manager)
+  /admin/reports/summary:
+    get:
+      summary: KPI summary — revenue, AOV, estimated margin (owner/manager)
+  /devices/register:
+    post:
+      summary: Register a push notification token (public)
+      security: []
+  /uploads/presign:
+    post:
+      summary: Get a presigned URL to upload a product image directly to storage (owner/manager)
+  /mfa/setup:
+    post:
+      summary: Generate a TOTP secret + QR code for MFA setup
+  /mfa/confirm:
+    post:
+      summary: Confirm MFA setup with a 6-digit code, enabling enforcement
+  /mfa/disable:
+    post:
+      summary: Disable MFA on the calling admin's own account
+  /orders/{id}/cancel:
+    post:
+      summary: Customer-initiated cancellation (public, phone number must match the order)
+      security: []
+  /payments/webhook/flutterwave:
+    post:
+      summary: Flutterwave webhook (called by Flutterwave, not by clients)
+      security: []
+  /api-keys:
+    get:
+      summary: List API keys (owner only)
+    post:
+      summary: Create an API key — raw value returned once (owner only)
+  /api-keys/{id}:
+    delete:
+      summary: Revoke an API key (owner only)
+  /data-requests/export:
+    get:
+      summary: Export all data tied to a phone number (owner/manager)
+  /data-requests/delete:
+    post:
+      summary: Anonymize a customer's personal data (owner only)
+  /delivery-zones:
+    get:
+      summary: List delivery zones (owner/manager/support)
+    post:
+      summary: Create a delivery zone (owner/manager)
+  /delivery-zones/check:
+    post:
+      summary: Check whether a lat/lng point falls within an active zone (public)
+      security: []

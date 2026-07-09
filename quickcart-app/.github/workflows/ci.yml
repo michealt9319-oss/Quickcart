@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.0"
+          channel: stable
+      # Generates the native android/ios scaffolding this repo deliberately
+      # doesn't commit (see main README). Run WITHOUT --overwrite — that
+      # flag can replace existing lib/main.dart and pubspec.yaml with
+      # template defaults, which is not what we want on an existing
+      # project. Without it, `flutter create .` only adds files that don't
+      # already exist (the platform folders) and leaves our actual app code
+      # alone.
+      - run: flutter create .
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test

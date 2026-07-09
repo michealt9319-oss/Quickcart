@@ -1,0 +1,50 @@
+name: quickcart_app
+description: QuickCart customer app — Android and iOS from one codebase.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  provider: ^6.1.2
+  webview_flutter: ^4.7.0
+  intl: ^0.19.0
+  shared_preferences: ^2.3.2
+  firebase_core: ^3.4.1
+  firebase_messaging: ^15.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  # Run `dart run flutter_launcher_icons` after placing a real 1024x1024
+  # icon at assets/icon/icon.png — see README's "App icon and splash screen"
+  # section. Not run automatically here since the placeholder path below
+  # doesn't contain a real image yet.
+  flutter_launcher_icons: ^0.13.1
+  # Run `dart run flutter_native_splash:create` after placing a real splash
+  # image — same caveat as above.
+  flutter_native_splash: ^2.4.1
+
+flutter:
+  uses-material-design: true
+
+# Config for flutter_launcher_icons. Supply a real 1024x1024 PNG at the path
+# below, then run: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+
+# Config for flutter_native_splash. Supply a real splash image, then run:
+# dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/icon/splash.png"
+  android_12:
+    color: "#FFFFFF"
+    image: "assets/icon/splash.png"

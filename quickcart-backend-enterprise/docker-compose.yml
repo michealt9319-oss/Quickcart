@@ -1,0 +1,45 @@
+version: "3.8"
+
+# One-command local dev: `docker compose up`. Runs the API plus a real
+# Postgres, wires DATABASE_URL between them, and runs the schema migration
+# automatically on first start. Not intended as a production deployment
+# topology — for production, use a managed Postgres (RDS, Supabase, etc.)
+# rather than a container with a local volume.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quickcart
+      POSTGRES_PASSWORD: quickcart
+      POSTGRES_DB: quickcart
+    ports:
+      - "5432:5432"
+    volumes:
+      - quickcart_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickcart"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://quickcart:quickcart@postgres:5432/quickcart
+      PORT: 4000
+      JWT_SECRET: dev-only-secret-change-in-production
+      BOOTSTRAP_SECRET: dev-only-bootstrap-secret
+      ALLOWED_ORIGINS: http://localhost:3000
+      WEB_APP_URL: http://localhost:3000
+      # Paystack/WhatsApp/FCM/S3/SMTP keys intentionally left unset for
+      # local dev — those integrations degrade gracefully (see each lib's
+      # comments) rather than crashing the app when not configured.
+    ports:
+      - "4000:4000"
+    command: sh -c "npm run db:migrate && npm start"
+
+volumes:
+  quickcart_pgdata:
