@@ -1,43 +1,47 @@
-      - name: Install Flutter SDK (git clone)
-        run: |
-          git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
-          # Ensure the runner uses this flutter in subsequent steps:
-          echo "$HOME/flutter/bin" >> $GITHUB_PATH
-          # Also export it in this step for immediate commands:
-          export PATH="$HOME/flutter/bin:$PATH"
+  - name: Install Flutter SDK
+    run: |
+      git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+      echo "$HOME/flutter/bin" >> $GITHUB_PATH
+      # ensure PATH for commands in this step
+      export PATH="$HOME/flutter/bin:$PATH"
+      # verify install and surface errors early
+      $HOME/flutter/bin/flutter --version
+      $HOME/flutter/bin/flutter doctor -v || true
+      # pre-download artifacts; fail the step on error
+      $HOME/flutter/bin/flutter precache
+    shell: bash
 
-          # Basic checks
-          $HOME/flutter/bin/flutter --version
-          $HOME/flutter/bin/flutter doctor -v || true
+  - name: Debug Flutter env
+    run: |
+      echo "GITHUB_PATH contents:"
+      sed -n '1,200p' $GITHUB_PATH || true
+      echo "PATH=$PATH"
+      echo "which flutter: $(which flutter || echo 'not found')"
+      $HOME/flutter/bin/flutter --version || true
+      ls -la $HOME/flutter || true
+    shell: bash
 
-          # Pre-download artifacts; fail early if this fails
-          $HOME/flutter/bin/flutter precache
-        shell: bash
+  - name: Cache Pub packages
+    uses: actions/cache@v4
+    with:
+      path: |
+        ~/.pub-cache
+        ~/.flutter/.pub-cache
+      key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
 
-      - name: Debug Flutter env
-        run: |
-          echo "GITHUB_PATH:"
-          sed -n '1,200p' $GITHUB_PATH || true
-          echo "PATH=$PATH"
-          echo "which flutter: $(which flutter || echo 'not found')"
-          $HOME/flutter/bin/flutter --version || true
-          ls -la $HOME/flutter || true
-        shell: bash
+  - name: Install dependencies
+    working-directory: quickcart-app
+    run: $HOME/flutter/bin/flutter pub get
+    shell: bash
 
-      - name: Cache Pub packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            ~/.flutter/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+  - name: Run tests
+    working-directory: quickcart-app
+    run: $HOME/flutter/bin/flutter test --no-pub
+    shell: bash
 
-      - name: Install dependencies
-        working-directory: quickcart-app
-        run: $HOME/flutter/bin/flutter pub get
-        shell: bash
-
-      - name: Run tests
-        working-directory: quickcart-app
-        run: $HOME/flutter/bin/flutter test --no-pub
-        shell: bash
+  - name: Upload test logs
+    if: always()
+    uses: actions/upload-artifact@v4
+    with:
+      name: flutter-test-logs-${{ matrix.os }}
+      path: quickcart-app/test
