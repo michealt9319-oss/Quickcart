@@ -1,0 +1,48 @@
+name: Flutter CI - tests
+
+on:
+  push:
+    paths:
+      - 'quickcart-app/**'
+  pull_request:
+    paths:
+      - 'quickcart-app/**'
+
+jobs:
+  test:
+    name: Run Flutter tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Cache Pub packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.flutter/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Install dependencies
+        working-directory: quickcart-app
+        run: flutter pub get
+
+      - name: Run tests
+        working-directory: quickcart-app
+        run: flutter test --no-pub
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-test-logs-${{ matrix.os }}
+          path: quickcart-app/test
