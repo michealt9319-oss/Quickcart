@@ -19,10 +19,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Set up Flutter (stable channel)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          channel: stable
+
+      - name: Debug Flutter install
+        run: |
+          echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
+          flutter --version || true
+          flutter doctor -v || true
+        shell: bash
 
       - name: Cache Pub packages
         uses: actions/cache@v4
