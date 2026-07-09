@@ -1,6 +1,7 @@
 name: Flutter CI - tests
 
 on:
+  workflow_dispatch: {}
   push:
     paths:
       - '.github/workflows/**'
