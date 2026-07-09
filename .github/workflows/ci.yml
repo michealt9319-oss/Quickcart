@@ -74,10 +74,17 @@ jobs:
           - channel: stable
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: stable
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl unzip xz-utils clang
+      - name: Clone Flutter (stable)
+        run: |
+          git clone --branch stable https://github.com/flutter/flutter.git --depth 1 $HOME/flutter
+      - name: Add Flutter to PATH
+        run: echo "$HOME/flutter/bin" >> $GITHUB_PATH
+      - name: Verify Flutter
+        run: flutter --version
       - name: Cache Flutter pub
         uses: actions/cache@v4
         with:
