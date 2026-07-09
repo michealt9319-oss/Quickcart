@@ -26,12 +26,14 @@ jobs:
         with:
           flutter-version: 'stable'
           channel: stable
-          cache: true
 
       - name: Debug Flutter install
         run: |
+          echo "PATH=$PATH"
           echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
+          which flutter || true
           flutter --version || true
+          dart --version || true
           flutter doctor -v || true
         shell: bash
 
