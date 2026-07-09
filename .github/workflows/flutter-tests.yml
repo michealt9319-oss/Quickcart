@@ -3,9 +3,11 @@ name: Flutter CI - tests
 on:
   push:
     paths:
+      - '.github/workflows/**'
       - 'quickcart-app/**'
   pull_request:
     paths:
+      - '.github/workflows/**'
       - 'quickcart-app/**'
 
 jobs:
