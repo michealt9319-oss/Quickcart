@@ -21,7 +21,12 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ProductCard(product: product, onTap: () => tapped = true),
+          body: Center(
+            child: SizedBox(
+              width: 300,
+              child: ProductCard(product: product, onTap: () => tapped = true),
+            ),
+          ),
         ),
       ),
     );

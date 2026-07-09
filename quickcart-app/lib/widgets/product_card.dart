@@ -14,6 +14,7 @@ class ProductCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 360),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
